@@ -33,54 +33,6 @@ library(pacman)
 p_load(tidyverse, scales, janitor, tabulizer, stringr)
 ```
 
-# NYT Covid-19 data
-
-The New York Times' [Coronavirus (Covid-19) Data in the United States](https://github.com/nytimes/covid-19-data/) repository containing 
-
-> a series of data files with cumulative counts of coronavirus cases in the United States, at the state and county level, over time.
-
-```{r}
-urlfile="https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv"
-
-nyt_raw <- read_csv(url(urlfile))
-
-# sjmisc::frq(nyt_raw, state)
-
-write_rds("data-raw/nyt/nyt_raw.Rds")
-write_csv("data-raw/nyt/nyt_raw.csv")
-```
-
-Raw dataset downloaded on `r format(Sys.time(), '%d %B, %Y')` consists of `r number(nrow(nyt_raw), big.mark = ",")` records of `r number(length(unique(nyt_raw$state)))` states from `r min(nyt_raw$date)` to `r max(nyt_raw$date)`. 
-
-Data are then limited to the 50 states plus DC, time frame of the analysis ie. until `2020-03-30` and daily number of cases are derived from cumulative counts. Next cases from previous day are added to each observation and logarithms and their difference are calculated. Finally only days when cumulative number of cases reached 30 are kept in the dataset.
-
-```{r}
-# nyt_raw %>% filter(fips %in% c(66, 69, 72, 78)) %>% group_by(state) %>% slice(1)
-
-nyt <- nyt_raw %>%
-  filter(!fips %in% c(66, 69, 72, 78)) %>% 
-  select(-fips, -deaths) %>%
-  rename(cases_cumulative = cases) %>%
-  filter(date <= as.Date("2020-03-30")) %>%
-  group_by(state) %>%
-  mutate(cases_day = cases_cumulative - lag(cases_cumulative)) %>%
-  mutate(cases_day = ifelse(is.na(cases_day), cases_cumulative, cases_day)) %>%
-  mutate(cases_day_perc = (cases_day / lag(cases_day)) *100,
-         cases_daybefore = lag(cases_day)) %>%
-  ungroup() %>%
-  mutate(cases_day_ln = log(cases_day),
-         cases_daybefore_ln = log(cases_daybefore),
-         log_dif = cases_day_ln - cases_daybefore_ln) %>%
-  filter(cases_cumulative >= 30) %>%
-  arrange(state, date)
-```
-
-Prepared dataset consists of `r number(nrow(nyt), big.mark = ",")` records of `r number(length(unique(nyt$state)))` states from `r min(nyt$date)` to `r max(nyt$date)` period. 
-```{r}
-write_rds("data/nyt/nyt.Rds")
-write_csv("data/nyt/nyt.csv")
-```
-
 # Timing of state's measures
 
 ```{r}
@@ -174,10 +126,58 @@ sjmisc::frq(measures, state)
 #    as_tibble(unique(nyt$state))
 # ))
 
-write_rds("data/supplement/measures.Rds")
-write_csv("data/supplement/measures.csv")
+write_rds(measures, "data/supplement/measures.Rds")
+write_csv(measures, "data/supplement/measures.csv")
 ```
 
 Prepared dataset consists of `r number(nrow(measures))` records of `r number(length(unique(measures$state)))` states with measures implemented between `r min(measures$date)` to `r max(measures$date)`. 
+
+# NYT Covid-19 data
+
+The New York Times' [Coronavirus (Covid-19) Data in the United States](https://github.com/nytimes/covid-19-data/) repository containing 
+
+> a series of data files with cumulative counts of coronavirus cases in the United States, at the state and county level, over time.
+
+```{r}
+urlfile="https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv"
+
+nyt_raw <- read_csv(url(urlfile))
+
+# sjmisc::frq(nyt_raw, state)
+
+write_rds(nyt_raw, "data-raw/nyt/nyt_raw.Rds")
+write_csv(nyt_raw, "data-raw/nyt/nyt_raw.csv")
+```
+
+Raw dataset downloaded on `r format(Sys.time(), '%d %B, %Y')` consists of `r number(nrow(nyt_raw), big.mark = ",")` records of `r number(length(unique(nyt_raw$state)))` states from `r min(nyt_raw$date)` to `r max(nyt_raw$date)`. 
+
+Data are then limited to the 50 states plus DC, time frame of the analysis ie. until `2020-03-30` and daily number of cases are derived from cumulative counts. Next cases from previous day are added to each observation and logarithms and their difference are calculated. Finally only days when cumulative number of cases reached 30 are kept in the dataset.
+
+```{r}
+# nyt_raw %>% filter(fips %in% c(66, 69, 72, 78)) %>% group_by(state) %>% slice(1)
+
+nyt <- nyt_raw %>%
+  filter(!fips %in% c(66, 69, 72, 78)) %>% 
+  select(-fips, -deaths) %>%
+  rename(cases_cumulative = cases) %>%
+  filter(date <= as.Date("2020-03-30")) %>%
+  group_by(state) %>%
+  mutate(cases_day = cases_cumulative - lag(cases_cumulative)) %>%
+  mutate(cases_day = ifelse(is.na(cases_day), cases_cumulative, cases_day)) %>%
+  mutate(cases_day_perc = (cases_day / lag(cases_day)) *100,
+         cases_daybefore = lag(cases_day)) %>%
+  ungroup() %>%
+  mutate(cases_day_ln = log(cases_day),
+         cases_daybefore_ln = log(cases_daybefore),
+         log_dif = cases_day_ln - cases_daybefore_ln) %>%
+  filter(cases_cumulative >= 30) %>%
+  arrange(state, date)
+```
+
+Prepared dataset consists of `r number(nrow(nyt), big.mark = ",")` records of `r number(length(unique(nyt$state)))` states from `r min(nyt$date)` to `r max(nyt$date)` period. 
+```{r}
+write_rds(nyt, "data/nyt/nyt.Rds")
+write_csv(nyt, "data/nyt/nyt.csv")
+```
 
 # Pop density
