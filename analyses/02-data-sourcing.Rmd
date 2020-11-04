@@ -30,7 +30,7 @@ options(scipen=999)
 set.seed(12345)
 
 library(pacman) 
-p_load(tidyverse, scales, janitor, pdftools, tabulizer, stringr)
+p_load(tidyverse, scales, janitor, tabulizer, stringr)
 ```
 
 # NYT data
@@ -52,10 +52,10 @@ Raw dataset downloaded on `r format(Sys.time(), '%d %B, %Y')` consists of `r num
 Data are then limited to the 50 states plus DC, time frame of the analysis ie. until `2020-03-30` and daily number of cases are derived from cumulative counts. Next cases from previous day are added to each observation and logarithms and their difference are calculated. Finally only days when cumulative number of cases reached 30 are kept in the dataset.
 
 ```{r}
-# nyt_raw %>% filter(fips >= 66) %>% group_by(state) %>% slice(1)
+# nyt_raw %>% filter(fips %in% c(66, 69, 72, 78)) %>% group_by(state) %>% slice(1)
 
 nyt <- nyt_raw %>%
-  filter(fips < 66) %>% 
+  filter(!fips %in% c(66, 69, 72, 78)) %>% 
   select(-fips, -deaths) %>%
   rename(cases_cumulative = cases) %>%
   filter(date <= as.Date("2020-03-30")) %>%
@@ -73,7 +73,6 @@ nyt <- nyt_raw %>%
 ```
 
 Prepared dataset consists of `r number(nrow(nyt), big.mark = ",")` records of `r number(length(unique(nyt$state)))` states from `r min(nyt$date)` to `r max(nyt$date)` period. 
-
 # Timing of measures
 
 ```{r}
@@ -154,24 +153,22 @@ measures <- bind_rows(measures_4,
       measure_short == "d" ~ "restrictions on internal movement",
       measure_short == "e" ~ "closure of state borders"
     )) %>% 
+  filter(state != "Puerto Rico") %>% 
   arrange(state, date)
 
 # str(measures)
 # View(measures)
 sjmisc::frq(measures, measure, sort.frq = "desc")
-sjmisc::frq(measures, state, sort.frq = "desc")
-```
+sjmisc::frq(measures, state)
 
-Raw dataset consists of `r number(nrow(measures))` records of `r number(length(unique(measures$state)))` states with measures implemented between `r min(measures$date)` to `r max(measures$date)`. 
-
-There are two states 
-
-```{r}
-(missing <- anti_join(
-  as_tibble(unique(nyt$state)),
-  as_tibble(unique(measures$state))
-))
+# (missing <- anti_join(
+#    as_tibble(unique(measures$state)), 
+#    as_tibble(unique(nyt$state))
+# ))
 
 ```
+
+Prepared dataset consists of `r number(nrow(measures))` records of `r number(length(unique(measures$state)))` states with measures implemented between `r min(measures$date)` to `r max(measures$date)`. 
+
 
 # Pop density
