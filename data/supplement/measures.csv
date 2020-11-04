@@ -1,0 +1,240 @@
+state,date,measure_short,measure
+Alabama,2020-03-18,a,closure of schools
+Alabama,2020-03-19,a,closure of schools
+Alabama,2020-03-19,c,cancellation of public events
+Alabama,2020-03-28,b,closure of workplaces
+Alaska,2020-03-14,c,cancellation of public events
+Alaska,2020-03-16,a,closure of schools
+Alaska,2020-03-17,c,cancellation of public events
+Alaska,2020-03-17,e,closure of state borders
+Alaska,2020-03-18,c,cancellation of public events
+Alaska,2020-03-24,b,closure of workplaces
+Alaska,2020-03-24,c,cancellation of public events
+Alaska,2020-03-25,e,closure of state borders
+Alaska,2020-03-28,d,restrictions on internal movement
+Arizona,2020-03-16,a,closure of schools
+Arizona,2020-03-20,c,cancellation of public events
+Arizona,2020-03-31,b,closure of workplaces
+Arizona,2020-03-31,d,restrictions on internal movement
+Arkansas,2020-03-19,a,closure of schools
+Arkansas,2020-03-19,b,closure of workplaces
+Arkansas,2020-03-19,c,cancellation of public events
+Arkansas,2020-03-25,c,cancellation of public events
+Arkansas,2020-03-26,c,cancellation of public events
+California,2020-03-11,c,cancellation of public events
+California,2020-03-17,c,cancellation of public events
+California,2020-03-19,a,closure of schools
+California,2020-03-19,b,closure of workplaces
+California,2020-03-19,d,restrictions on internal movement
+Colorado,2020-03-17,c,cancellation of public events
+Colorado,2020-03-19,c,cancellation of public events
+Colorado,2020-03-23,a,closure of schools
+Colorado,2020-03-23,c,cancellation of public events
+Connecticut,2020-03-12,c,cancellation of public events
+Connecticut,2020-03-16,c,cancellation of public events
+Connecticut,2020-03-17,a,closure of schools
+Connecticut,2020-03-19,c,cancellation of public events
+Connecticut,2020-03-23,b,closure of workplaces
+Connecticut,2020-03-23,d,restrictions on internal movement
+Connecticut,2020-03-26,c,cancellation of public events
+Delaware,2020-03-16,a,closure of schools
+Delaware,2020-03-16,c,cancellation of public events
+Delaware,2020-03-24,b,closure of workplaces
+Delaware,2020-03-24,d,restrictions on internal movement
+District of Columbia,2020-03-13,c,cancellation of public events
+District of Columbia,2020-03-16,a,closure of schools
+District of Columbia,2020-03-16,c,cancellation of public events
+District of Columbia,2020-03-25,b,closure of workplaces
+District of Columbia,2020-04-01,d,restrictions on internal movement
+Florida,2020-03-16,a,closure of schools
+Florida,2020-03-17,c,cancellation of public events
+Florida,2020-03-20,c,cancellation of public events
+Florida,2020-03-24,e,closure of state borders
+Georgia,2020-03-18,a,closure of schools
+Georgia,2020-03-24,c,cancellation of public events
+Georgia,2020-03-24,d,restrictions on internal movement
+Hawaii,2020-03-15,a,closure of schools
+Hawaii,2020-03-18,c,cancellation of public events
+Hawaii,2020-03-20,c,cancellation of public events
+Hawaii,2020-03-25,b,closure of workplaces
+Hawaii,2020-03-25,d,restrictions on internal movement
+Hawaii,2020-03-26,e,closure of state borders
+Idaho,2020-03-25,a,closure of schools
+Idaho,2020-03-25,b,closure of workplaces
+Idaho,2020-03-25,d,restrictions on internal movement
+Illinois,2020-03-13,c,cancellation of public events
+Illinois,2020-03-16,c,cancellation of public events
+Illinois,2020-03-17,a,closure of schools
+Illinois,2020-03-21,b,closure of workplaces
+Illinois,2020-03-21,d,restrictions on internal movement
+Indiana,2020-03-16,c,cancellation of public events
+Indiana,2020-03-19,a,closure of schools
+Indiana,2020-03-24,b,closure of workplaces
+Indiana,2020-03-24,d,restrictions on internal movement
+Iowa,2020-03-17,c,cancellation of public events
+Iowa,2020-03-22,c,cancellation of public events
+Iowa,2020-03-26,c,cancellation of public events
+Kansas,2020-03-17,a,closure of schools
+Kansas,2020-03-17,c,cancellation of public events
+Kansas,2020-03-19,e,closure of state borders
+Kansas,2020-03-25,c,cancellation of public events
+Kansas,2020-03-30,b,closure of workplaces
+Kansas,2020-03-30,d,restrictions on internal movement
+Kentucky,2020-03-18,c,cancellation of public events
+Kentucky,2020-03-19,c,cancellation of public events
+Kentucky,2020-03-23,b,closure of workplaces
+Louisiana,2020-03-13,a,closure of schools
+Louisiana,2020-03-17,c,cancellation of public events
+Louisiana,2020-03-23,b,closure of workplaces
+Louisiana,2020-03-23,d,restrictions on internal movement
+Maine,2020-03-18,c,cancellation of public events
+Maine,2020-03-25,b,closure of workplaces
+Maryland,2020-03-12,c,cancellation of public events
+Maryland,2020-03-16,a,closure of schools
+Maryland,2020-03-16,c,cancellation of public events
+Maryland,2020-03-23,b,closure of workplaces
+Maryland,2020-03-30,b,closure of workplaces
+Maryland,2020-03-30,d,restrictions on internal movement
+Massachusetts,2020-03-13,c,cancellation of public events
+Massachusetts,2020-03-16,a,closure of schools
+Massachusetts,2020-03-17,c,cancellation of public events
+Massachusetts,2020-03-24,b,closure of workplaces
+Massachusetts,2020-03-24,d,restrictions on internal movement
+Massachusetts,2020-03-27,e,closure of state borders
+Michigan,2020-03-16,a,closure of schools
+Michigan,2020-03-22,c,cancellation of public events
+Michigan,2020-03-24,b,closure of workplaces
+Michigan,2020-03-24,d,restrictions on internal movement
+Minnesota,2020-03-17,c,cancellation of public events
+Minnesota,2020-03-18,a,closure of schools
+Minnesota,2020-03-27,b,closure of workplaces
+Minnesota,2020-03-27,d,restrictions on internal movement
+Mississippi,2020-03-19,a,closure of schools
+Mississippi,2020-03-24,c,cancellation of public events
+Missouri,2020-03-17,c,cancellation of public events
+Missouri,2020-03-19,a,closure of schools
+Missouri,2020-03-23,c,cancellation of public events
+Missouri,2020-03-23,c,cancellation of public events
+Montana,2020-03-16,a,closure of schools
+Montana,2020-03-20,c,cancellation of public events
+Montana,2020-03-28,b,closure of workplaces
+Montana,2020-03-28,d,restrictions on internal movement
+Nebraska,2020-03-16,c,cancellation of public events
+Nevada,2020-03-16,a,closure of schools
+Nevada,2020-03-17,c,cancellation of public events
+Nevada,2020-03-20,b,closure of workplaces
+Nevada,2020-03-24,c,cancellation of public events
+New Hampshire,2020-03-16,a,closure of schools
+New Hampshire,2020-03-16,c,cancellation of public events
+New Hampshire,2020-03-23,c,cancellation of public events
+New Hampshire,2020-03-27,b,closure of workplaces
+New Hampshire,2020-03-27,d,restrictions on internal movement
+New Jersey,2020-03-16,c,cancellation of public events
+New Jersey,2020-03-21,a,closure of schools
+New Jersey,2020-03-21,b,closure of workplaces
+New Jersey,2020-03-21,c,cancellation of public events
+New Jersey,2020-03-21,d,restrictions on internal movement
+New Jersey,2020-04-01,c,cancellation of public events
+New Mexico,2020-03-16,a,closure of schools
+New Mexico,2020-03-16,c,cancellation of public events
+New Mexico,2020-03-19,c,cancellation of public events
+New Mexico,2020-03-24,b,closure of workplaces
+New Mexico,2020-03-24,d,restrictions on internal movement
+New York,2020-03-16,c,cancellation of public events
+New York,2020-03-18,a,closure of schools
+New York,2020-03-20,b,closure of workplaces
+New York,2020-03-21,b,closure of workplaces
+New York,2020-03-21,c,cancellation of public events
+New York,2020-03-22,b,closure of workplaces
+New York,2020-03-22,d,restrictions on internal movement
+North Carolina,2020-03-16,a,closure of schools
+North Carolina,2020-03-16,c,cancellation of public events
+North Carolina,2020-03-17,c,cancellation of public events
+North Carolina,2020-03-25,c,cancellation of public events
+North Carolina,2020-03-30,b,closure of workplaces
+North Carolina,2020-03-30,d,restrictions on internal movement
+North Dakota,2020-03-16,a,closure of schools
+North Dakota,2020-03-20,c,cancellation of public events
+North Dakota,2020-03-28,b,closure of workplaces
+North Dakota,2020-03-28,c,cancellation of public events
+Ohio,2020-03-15,c,cancellation of public events
+Ohio,2020-03-16,a,closure of schools
+Ohio,2020-03-17,c,cancellation of public events
+Ohio,2020-03-21,c,cancellation of public events
+Ohio,2020-03-23,b,closure of workplaces
+Ohio,2020-03-23,d,restrictions on internal movement
+Oklahoma,2020-03-17,a,closure of schools
+Oklahoma,2020-03-25,b,closure of workplaces
+Oklahoma,2020-03-25,d,restrictions on internal movement
+Oregon,2020-03-16,c,cancellation of public events
+Oregon,2020-03-16,a,closure of schools
+Oregon,2020-03-17,c,cancellation of public events
+Oregon,2020-03-23,b,closure of workplaces
+Oregon,2020-03-23,d,restrictions on internal movement
+Pennsylvania,2020-03-16,a,closure of schools
+Pennsylvania,2020-03-17,c,cancellation of public events
+Pennsylvania,2020-03-21,b,closure of workplaces
+Rhode Island,2020-03-17,c,cancellation of public events
+Rhode Island,2020-03-23,a,closure of schools
+Rhode Island,2020-03-23,c,cancellation of public events
+Rhode Island,2020-03-24,c,cancellation of public events
+Rhode Island,2020-03-24,e,closure of state borders
+Rhode Island,2020-03-30,b,closure of workplaces
+Rhode Island,2020-03-30,c,cancellation of public events
+Rhode Island,2020-03-30,d,restrictions on internal movement
+South Carolina,2020-03-16,a,closure of schools
+South Carolina,2020-03-18,c,cancellation of public events
+South Carolina,2020-03-23,c,cancellation of public events
+South Carolina,2020-03-27,e,closure of state borders
+South Dakota,2020-03-23,c,cancellation of public events
+South Dakota,2020-03-24,a,closure of schools
+South Dakota,2020-03-29,b,closure of workplaces
+Tennessee,2020-03-20,a,closure of schools
+Tennessee,2020-03-23,c,cancellation of public events
+Tennessee,2020-03-23,c,cancellation of public events
+Texas,2020-03-20,a,closure of schools
+Texas,2020-03-20,c,cancellation of public events
+Texas,2020-03-28,e,closure of state borders
+Utah,2020-03-16,a,closure of schools
+Utah,2020-03-18,c,cancellation of public events
+Utah,2020-03-21,c,cancellation of public events
+Vermont,2020-03-13,c,cancellation of public events
+Vermont,2020-03-16,c,cancellation of public events
+Vermont,2020-03-17,c,cancellation of public events
+Vermont,2020-03-18,a,closure of schools
+Vermont,2020-03-23,b,closure of workplaces
+Vermont,2020-03-23,c,cancellation of public events
+Vermont,2020-03-25,b,closure of workplaces
+Vermont,2020-03-25,d,restrictions on internal movement
+Vermont,2020-03-30,e,closure of state borders
+Virginia,2020-03-12,b,closure of workplaces
+Virginia,2020-03-12,c,cancellation of public events
+Virginia,2020-03-16,a,closure of schools
+Virginia,2020-03-16,c,cancellation of public events
+Virginia,2020-03-24,c,cancellation of public events
+Virginia,2020-03-30,b,closure of workplaces
+Virginia,2020-03-30,d,restrictions on internal movement
+Washington,2020-03-10,c,cancellation of public events
+Washington,2020-03-13,c,cancellation of public events
+Washington,2020-03-16,c,cancellation of public events
+Washington,2020-03-17,a,closure of schools
+Washington,2020-03-23,b,closure of workplaces
+Washington,2020-03-23,c,cancellation of public events
+Washington,2020-03-23,d,restrictions on internal movement
+West Virginia,2020-03-13,a,closure of schools
+West Virginia,2020-03-17,c,cancellation of public events
+West Virginia,2020-03-19,c,cancellation of public events
+West Virginia,2020-03-20,c,cancellation of public events
+West Virginia,2020-03-24,b,closure of workplaces
+West Virginia,2020-03-24,d,restrictions on internal movement
+West Virginia,2020-03-31,c,cancellation of public events
+West Virginia,2020-03-31,e,closure of state borders
+Wisconsin,2020-03-17,c,cancellation of public events
+Wisconsin,2020-03-17,c,cancellation of public events
+Wisconsin,2020-03-18,a,closure of schools
+Wisconsin,2020-03-25,b,closure of workplaces
+Wisconsin,2020-03-25,d,restrictions on internal movement
+Wyoming,2020-03-19,a,closure of schools
+Wyoming,2020-03-19,c,cancellation of public events
+Wyoming,2020-03-20,c,cancellation of public events
+Wyoming,2020-03-25,c,cancellation of public events
