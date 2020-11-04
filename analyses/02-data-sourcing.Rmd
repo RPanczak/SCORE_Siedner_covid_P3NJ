@@ -33,7 +33,7 @@ library(pacman)
 p_load(tidyverse, scales, janitor, tabulizer, stringr)
 ```
 
-# NYT data
+# NYT Covid-19 data
 
 The New York Times' [Coronavirus (Covid-19) Data in the United States](https://github.com/nytimes/covid-19-data/) repository containing 
 
@@ -45,6 +45,9 @@ urlfile="https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-state
 nyt_raw <- read_csv(url(urlfile))
 
 # sjmisc::frq(nyt_raw, state)
+
+write_rds("data-raw/nyt/nyt_raw.Rds")
+write_csv("data-raw/nyt/nyt_raw.csv")
 ```
 
 Raw dataset downloaded on `r format(Sys.time(), '%d %B, %Y')` consists of `r number(nrow(nyt_raw), big.mark = ",")` records of `r number(length(unique(nyt_raw$state)))` states from `r min(nyt_raw$date)` to `r max(nyt_raw$date)`. 
@@ -73,7 +76,12 @@ nyt <- nyt_raw %>%
 ```
 
 Prepared dataset consists of `r number(nrow(nyt), big.mark = ",")` records of `r number(length(unique(nyt$state)))` states from `r min(nyt$date)` to `r max(nyt$date)` period. 
-# Timing of measures
+```{r}
+write_rds("data/nyt/nyt.Rds")
+write_csv("data/nyt/nyt.csv")
+```
+
+# Timing of state's measures
 
 ```{r}
 # page 4 needs headers
@@ -166,9 +174,10 @@ sjmisc::frq(measures, state)
 #    as_tibble(unique(nyt$state))
 # ))
 
+write_rds("data/supplement/measures.Rds")
+write_csv("data/supplement/measures.csv")
 ```
 
 Prepared dataset consists of `r number(nrow(measures))` records of `r number(length(unique(measures$state)))` states with measures implemented between `r min(measures$date)` to `r max(measures$date)`. 
-
 
 # Pop density
