@@ -1,0 +1,160 @@
+---
+title: "SCORE: Siedner et al. (2020) replication"
+subtitle: "Data sourcing"
+author: "Radoslaw Panczak"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+mainfont: DejaVu Sans
+output: 
+  html_document: 
+    toc: true
+    toc_depth: 4
+    toc_float: true
+    number_sections: true
+    theme: united 
+    highlight: pygments 
+editor_options: 
+  chunk_output_type: console
+---
+
+<!-- ------------------------------------------------------------ --> 
+<!-- ------------------------------------------------------------ --> 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, 
+                      fig.width=8, fig.height=6, dpi=300, 
+                      out.width="800px", out.height="600px")
+
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+
+options(scipen=999)
+set.seed(12345)
+
+library(pacman) 
+p_load(tidyverse, scales, janitor, pdftools, tabulizer, stringr)
+```
+
+# NYT data
+
+The New York Times' [Coronavirus (Covid-19) Data in the United States](https://github.com/nytimes/covid-19-data/) repository containing 
+
+> a series of data files with cumulative counts of coronavirus cases in the United States, at the state and county level, over time.
+
+```{r}
+urlfile="https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv"
+
+nyt_raw <- read_csv(url(urlfile))
+
+# sjmisc::frq(nyt_raw, state)
+```
+
+Raw dataset downloaded on `r format(Sys.time(), '%d %B, %Y')` consists of `r number(nrow(nyt_raw), big.mark = ",")` records of `r number(length(unique(nyt_raw$state)))` states from `r min(nyt_raw$date)` to `r max(nyt_raw$date)`. 
+
+Data are then limited to the time frame of the analysis ie. untill `2020-03-30` an daily number of cases are derived from cumulative counts. Next cases from previous day are added to each observation and logarithms and their difference are calculated. Finally only days when cumulative number of cases reached 30 are kept in the dataset.
+
+```{r}
+nyt <- nyt_raw %>%
+  select(-fips, -deaths) %>%
+  rename(cases_cumulative = cases) %>%
+  filter(date <= as.Date("2020-03-30")) %>%
+  group_by(state) %>%
+  mutate(cases_day = cases_cumulative - lag(cases_cumulative)) %>%
+  mutate(cases_day = ifelse(is.na(cases_day), cases_cumulative, cases_day)) %>%
+  mutate(cases_day_perc = (cases_day / lag(cases_day)) *100,
+         cases_daybefore = lag(cases_day)) %>%
+  ungroup() %>%
+  mutate(cases_day_ln = log(cases_day),
+         cases_daybefore_ln = log(cases_daybefore),
+         log_dif = cases_day_ln - cases_daybefore_ln) %>%
+  filter(cases_cumulative >= 30) %>%
+  arrange(state, date)
+```
+
+# Timing of measures
+
+```{r}
+# page 4 needs headers
+measures_4 <- extract_tables("data-raw/supplement/2020.04.03.20052373-1.pdf",
+                             pages = 4, guess = TRUE, 
+                             output = "data.frame") %>% 
+  pluck(1) %>% 
+  clean_names() %>% 
+  filter(state != "") %>% 
+  select(-source_s)
+
+# some column drama
+measures_8 <- extract_tables("data-raw/supplement/2020.04.03.20052373-1.pdf",
+                             pages = 8, guess = FALSE, 
+                             output = "data.frame") %>% 
+  pluck(1) %>% 
+  clean_names() %>% 
+  filter(x != "") %>% 
+  select(- x_7) %>% 
+  mutate(x_6 = "")
+
+names(measures_8) <- names(measures_4)
+
+# these at least are consistent
+for (page in c(5:7, 9:10)){
+  
+  temp  <- extract_tables("data-raw/supplement/2020.04.03.20052373-1.pdf",
+                          pages = page, guess = FALSE, 
+                          output = "data.frame") %>% 
+    pluck(1) %>% 
+    clean_names() %>% 
+    filter(x != "") %>% 
+    select(-x_7, -x_8)
+  
+  names(temp) <- names(measures_4)
+  
+  if (page == 5) {
+    measures_5_10 <- temp
+  } else {
+    measures_5_10 <- bind_rows(measures_5_10, temp)
+  }
+}
+
+# another drama
+measures_11 <- extract_tables("data-raw/supplement/2020.04.03.20052373-1.pdf",
+                              pages = 11, guess = FALSE, 
+                              output = "data.frame") %>% 
+  pluck(1) %>% 
+  clean_names() %>% 
+  filter(x != "") %>% 
+  select(-x_6, -x_7) %>% 
+  filter(word(x, 1) != "Notes:") %>% 
+  filter(word(x, 1) != "of") %>% 
+  mutate(state = word(x, end = -2),
+         date = word(x, start = -1)) %>% 
+  select(-x) %>% 
+  relocate(state, date)
+
+names(measures_11) <- names(measures_4)
+
+# all together
+measures <- bind_rows(measures_4, 
+                      measures_5_10,
+                      measures_8, 
+                      measures_11) %>% 
+  pivot_longer(cols = a:e,
+               names_to = "measure_short",
+               values_to = "present") %>% 
+  filter(present != "") %>% 
+  select(-present) %>% 
+  mutate(date = as.Date(date, format = "%m/%d/%y")) %>% 
+  mutate(
+    measure = case_when(
+      measure_short == "a" ~ "closure of schools",
+      measure_short == "b" ~ "closure of workplaces",
+      measure_short == "c" ~ "cancellation of public events",
+      measure_short == "d" ~ "restrictions on internal movement",
+      measure_short == "e" ~ "closure of state borders"
+    )) %>% 
+  arrange(state, date)
+
+# str(measures)
+# View(measures)
+sjmisc::frq(measures, measure, sort.frq = "desc")
+sjmisc::frq(measures, state, sort.frq = "desc")
+```
+
+# Pop density
