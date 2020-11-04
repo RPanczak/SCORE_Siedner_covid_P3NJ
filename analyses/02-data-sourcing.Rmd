@@ -49,10 +49,13 @@ nyt_raw <- read_csv(url(urlfile))
 
 Raw dataset downloaded on `r format(Sys.time(), '%d %B, %Y')` consists of `r number(nrow(nyt_raw), big.mark = ",")` records of `r number(length(unique(nyt_raw$state)))` states from `r min(nyt_raw$date)` to `r max(nyt_raw$date)`. 
 
-Data are then limited to the time frame of the analysis ie. untill `2020-03-30` an daily number of cases are derived from cumulative counts. Next cases from previous day are added to each observation and logarithms and their difference are calculated. Finally only days when cumulative number of cases reached 30 are kept in the dataset.
+Data are then limited to the 50 states plus DC, time frame of the analysis ie. until `2020-03-30` and daily number of cases are derived from cumulative counts. Next cases from previous day are added to each observation and logarithms and their difference are calculated. Finally only days when cumulative number of cases reached 30 are kept in the dataset.
 
 ```{r}
+# nyt_raw %>% filter(fips >= 66) %>% group_by(state) %>% slice(1)
+
 nyt <- nyt_raw %>%
+  filter(fips < 66) %>% 
   select(-fips, -deaths) %>%
   rename(cases_cumulative = cases) %>%
   filter(date <= as.Date("2020-03-30")) %>%
@@ -68,6 +71,8 @@ nyt <- nyt_raw %>%
   filter(cases_cumulative >= 30) %>%
   arrange(state, date)
 ```
+
+Prepared dataset consists of `r number(nrow(nyt), big.mark = ",")` records of `r number(length(unique(nyt$state)))` states from `r min(nyt$date)` to `r max(nyt$date)` period. 
 
 # Timing of measures
 
@@ -155,6 +160,18 @@ measures <- bind_rows(measures_4,
 # View(measures)
 sjmisc::frq(measures, measure, sort.frq = "desc")
 sjmisc::frq(measures, state, sort.frq = "desc")
+```
+
+Raw dataset consists of `r number(nrow(measures))` records of `r number(length(unique(measures$state)))` states with measures implemented between `r min(measures$date)` to `r max(measures$date)`. 
+
+There are two states 
+
+```{r}
+(missing <- anti_join(
+  as_tibble(unique(nyt$state)),
+  as_tibble(unique(measures$state))
+))
+
 ```
 
 # Pop density
