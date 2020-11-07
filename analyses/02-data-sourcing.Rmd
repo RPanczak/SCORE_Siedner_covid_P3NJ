@@ -286,10 +286,10 @@ nyt_lockdown <- left_join(nyt, measures_lockdown) %>%
   mutate(date_lockdown_filled = if_else(is.na(date_lockdown), as.Date("2020-03-30"), date_lockdown)) %>% 
   mutate(time_to_lockdown = as.numeric(date - date_lockdown_filled),
          post_intervention = ifelse(time_to_lockdown <= 3, 0, 1)) %>% 
-  arrange(state, time_to_intervention) 
+  arrange(state, time_to_lockdown) 
 ```
 
-Example of first state
+Example of one state
 
 ```{r}
 nyt_lockdown %>% 
