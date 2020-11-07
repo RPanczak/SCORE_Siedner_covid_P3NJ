@@ -176,6 +176,7 @@ nyt <- nyt_raw %>%
   select(-fips, -deaths) %>%
   rename(cases_cumulative = cases) %>%
   filter(date <= as.Date("2020-03-30")) %>%
+  arrange(state, date) %>%
   group_by(state) %>%
   mutate(cases_day = cases_cumulative - lag(cases_cumulative)) %>%
   mutate(cases_day = ifelse(is.na(cases_day), cases_cumulative, cases_day)) %>%
