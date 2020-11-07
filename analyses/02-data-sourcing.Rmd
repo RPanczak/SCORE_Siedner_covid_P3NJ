@@ -251,8 +251,9 @@ measures_first %>%
   kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
 
 nyt_first <- left_join(nyt, measures_first) %>% 
-  mutate(time_to_intervention = date - date_first,
-         post_intervention = ifelse(time_to_intervention <= 3, 0, 1))
+  mutate(time_to_intervention = as.numeric(date - date_first),
+         post_intervention = ifelse(time_to_intervention <= 3, 0, 1)) %>% 
+  arrange(state, time_to_intervention) 
 ```
 
 Example of first state
@@ -283,8 +284,9 @@ measures_lockdown %>%
 
 nyt_lockdown <- left_join(nyt, measures_lockdown) %>% 
   mutate(date_lockdown_filled = if_else(is.na(date_lockdown), as.Date("2020-03-30"), date_lockdown)) %>% 
-  mutate(time_to_lockdown = date - date_lockdown_filled,
-         post_intervention = ifelse(time_to_lockdown <= 3, 0, 1))
+  mutate(time_to_lockdown = as.numeric(date - date_lockdown_filled),
+         post_intervention = ifelse(time_to_lockdown <= 3, 0, 1)) %>% 
+  arrange(state, time_to_intervention) 
 ```
 
 Example of first state
