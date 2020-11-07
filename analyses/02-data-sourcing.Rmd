@@ -30,7 +30,7 @@ options(scipen=999)
 set.seed(12345)
 
 library(pacman) 
-p_load(tidyverse, scales, janitor, tabulizer, stringr)
+p_load(tidyverse, readxl, rvest, scales, sjmisc, janitor, tabulizer, stringr, kableExtra)
 ```
 
 # Timing of state's measures
@@ -76,6 +76,8 @@ for (page in c(5:7, 9:10)){
     measures_5_10 <- bind_rows(measures_5_10, temp)
   }
 }
+
+rm(temp, page)
 
 # another drama
 measures_11 <- extract_tables("data-raw/supplement/2020.04.03.20052373-1.pdf",
@@ -128,6 +130,8 @@ sjmisc::frq(measures, state)
 
 write_rds(measures, "data/supplement/measures.Rds")
 write_csv(measures, "data/supplement/measures.csv")
+
+rm(measures_4, measures_5_10, measures_8, measures_11)
 ```
 
 Prepared dataset consists of `r number(nrow(measures))` records of `r number(length(unique(measures$state)))` states with measures implemented between `r min(measures$date)` to `r max(measures$date)`. 
@@ -151,11 +155,22 @@ write_csv(nyt_raw, "data-raw/nyt/nyt_raw.csv")
 
 Raw dataset downloaded on `r format(Sys.time(), '%d %B, %Y')` consists of `r number(nrow(nyt_raw), big.mark = ",")` records of `r number(length(unique(nyt_raw$state)))` states from `r min(nyt_raw$date)` to `r max(nyt_raw$date)`. 
 
-Data are then limited to the 50 states plus DC, time frame of the analysis ie. until `2020-03-30` and daily number of cases are derived from cumulative counts. Next cases from previous day are added to each observation and logarithms and their difference are calculated. Finally only days when cumulative number of cases reached 30 are kept in the dataset.
+Data are first limited to the 50 states plus DC - that was achieved by excluding `fips` codes `66, 69, 72, 78` for Guam, Northern Mariana Islands, Puerto Rico and Virgin Islands.
 
 ```{r}
-# nyt_raw %>% filter(fips %in% c(66, 69, 72, 78)) %>% group_by(state) %>% slice(1)
+nyt_raw %>% 
+  filter(fips %in% c(66, 69, 72, 78)) %>% 
+  group_by(state, fips) %>% 
+  summarise(records = n(),
+            cases = sum(cases),
+            deaths = sum(deaths)) %>% 
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
+```
 
+Next, data is limited to match the time frame of the analysis ie. until `2020-03-30` and daily number of cases are derived from cumulative counts. Next cases from previous day are added to each observation and logarithms and their difference are calculated. Finally only days when cumulative number of cases reached 30 are kept in the dataset.
+
+```{r}
 nyt <- nyt_raw %>%
   filter(!fips %in% c(66, 69, 72, 78)) %>% 
   select(-fips, -deaths) %>%
@@ -164,13 +179,12 @@ nyt <- nyt_raw %>%
   group_by(state) %>%
   mutate(cases_day = cases_cumulative - lag(cases_cumulative)) %>%
   mutate(cases_day = ifelse(is.na(cases_day), cases_cumulative, cases_day)) %>%
-  mutate(cases_day_perc = (cases_day / lag(cases_day)) *100,
+  mutate(cases_day_perc = ((cases_day - lag(cases_day))/ lag(cases_day)) *100,
          cases_daybefore = lag(cases_day)) %>%
   ungroup() %>%
   mutate(cases_day_ln = log(cases_day),
          cases_daybefore_ln = log(cases_daybefore),
          log_dif = cases_day_ln - cases_daybefore_ln) %>%
-  filter(cases_cumulative >= 30) %>%
   arrange(state, date)
 ```
 
@@ -178,6 +192,114 @@ Prepared dataset consists of `r number(nrow(nyt), big.mark = ",")` records of `r
 ```{r}
 write_rds(nyt, "data/nyt/nyt.Rds")
 write_csv(nyt, "data/nyt/nyt.csv")
+rm(nyt_raw)
 ```
 
+Frequency of records by state:
+
+```{r}
+# frq(nyt, state) 
+nyt %>% 
+  group_by(state) %>% 
+  summarize(records = n()) %>% 
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
+```
+
+And by date:
+
+```{r}
+# frq(nyt, date)
+nyt %>% 
+  group_by(date) %>% 
+  summarize(records = n()) %>% 
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
+```
+
+
+# Link of measures & cases datasets 
+
+## First measure
+
+```{r}
+measures_first <- measures %>% 
+  select(-measure_short) %>% 
+  group_by(state) %>% 
+  slice(1)
+
+nyt_first <- left_join(nyt, measures_first)
+# filter(cases_cumulative >= 30) %>%
+```
+
+## Lockdown
+
+```{r}
+
+
+```
+
+
 # Pop density
+
+## Numerator
+
+```{r}
+population <- read_excel("data-raw/census/nst-est2019-01.xlsx", 
+                         skip = 3) %>% 
+  clean_names() %>% 
+  remove_empty() %>% 
+  rename(state = x1,
+         pop_2019 = x2019) %>% 
+  select(state, pop_2019) %>% 
+  filter(! state %in% c("United States", "Northeast", "Midwest", "South", "West"),
+         !is.na(pop_2019)) %>% 
+  mutate(state = str_replace(state, fixed("."), ""))
+
+population %>% 
+  slice(1:5) %>% 
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
+
+write_rds(population, "data/census/population.Rds")
+write_csv(population, "data/census/population.csv")
+```
+
+## Denominator
+
+```{r}
+p_load(rvest)
+
+webpage <- read_html("https://www.census.gov/geographies/reference-files/2010/geo/state-area.html")
+
+# html_nodes(webpage, "table")
+
+area <- webpage %>%
+  html_nodes("table") %>%
+  .[1] %>%
+  html_table(fill = TRUE) %>%
+  .[[1]] %>% 
+  clean_names() %>% 
+  remove_empty() %>% 
+  as_tibble() %>% 
+  rename(state = state_and_other_areas2) %>% 
+  filter(state != "State and other areas2",
+         state != "Total3", 
+         state != "United States4",
+         state != "") %>% 
+  select(state, total_area, total_area_2, land_area1, land_area1_2) %>% 
+  rename(total_area_km = total_area,
+         total_area_mi = total_area_2,
+         land_area_km = land_area1,
+         land_area_mi = land_area1_2)
+
+area %>% 
+  slice(1:5) %>% 
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
+
+write_rds(area, "data/census/area.Rds")
+write_csv(area, "data/census/area.csv")
+```
+
+
