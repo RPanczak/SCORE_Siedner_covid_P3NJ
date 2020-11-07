@@ -40,7 +40,7 @@ p_load(tidyverse, readxl, rvest, scales, sjmisc, janitor, tabulizer, stringr, ka
 measures_4 <- extract_tables("data-raw/supplement/2020.04.03.20052373-1.pdf",
                              pages = 4, guess = TRUE, 
                              output = "data.frame") %>% 
-  pluck(1) %>% 
+  purrr::pluck(1) %>% 
   clean_names() %>% 
   filter(state != "") %>% 
   select(-source_s)
@@ -49,7 +49,7 @@ measures_4 <- extract_tables("data-raw/supplement/2020.04.03.20052373-1.pdf",
 measures_8 <- extract_tables("data-raw/supplement/2020.04.03.20052373-1.pdf",
                              pages = 8, guess = FALSE, 
                              output = "data.frame") %>% 
-  pluck(1) %>% 
+  purrr::pluck(1) %>% 
   clean_names() %>% 
   filter(x != "") %>% 
   select(- x_7) %>% 
@@ -63,7 +63,7 @@ for (page in c(5:7, 9:10)){
   temp  <- extract_tables("data-raw/supplement/2020.04.03.20052373-1.pdf",
                           pages = page, guess = FALSE, 
                           output = "data.frame") %>% 
-    pluck(1) %>% 
+    purrr::pluck(1) %>% 
     clean_names() %>% 
     filter(x != "") %>% 
     select(-x_7, -x_8)
@@ -83,7 +83,7 @@ rm(temp, page)
 measures_11 <- extract_tables("data-raw/supplement/2020.04.03.20052373-1.pdf",
                               pages = 11, guess = FALSE, 
                               output = "data.frame") %>% 
-  pluck(1) %>% 
+  purrr::pluck(1) %>% 
   clean_names() %>% 
   filter(x != "") %>% 
   select(-x_6, -x_7) %>% 
@@ -134,7 +134,7 @@ write_csv(measures, "data/supplement/measures.csv")
 rm(measures_4, measures_5_10, measures_8, measures_11)
 ```
 
-Prepared dataset consists of `r number(nrow(measures))` records of `r number(length(unique(measures$state)))` states with measures implemented between `r min(measures$date)` to `r max(measures$date)`. 
+Prepared dataset consists of `r number(nrow(measures))` records of `r number(length(unique(measures$state)))` states with measures implemented between `r min(measures$date)` to `r max(measures$date)`. The dataset is in long format. The data for Puerto Rico were excluded since the preprint states that analyses were conducted fo r50 states plus DC.
 
 # NYT Covid-19 data
 
@@ -185,6 +185,7 @@ nyt <- nyt_raw %>%
   mutate(cases_day_ln = log(cases_day),
          cases_daybefore_ln = log(cases_daybefore),
          log_dif = cases_day_ln - cases_daybefore_ln) %>%
+  filter(cases_cumulative >= 30) %>% 
   arrange(state, date)
 ```
 
@@ -198,6 +199,7 @@ rm(nyt_raw)
 Frequency of records by state:
 
 ```{r}
+# length(unique(nyt$state))
 # frq(nyt, state) 
 nyt %>% 
   group_by(state) %>% 
@@ -209,6 +211,7 @@ nyt %>%
 And by date:
 
 ```{r}
+# length(unique(nyt$date))
 # frq(nyt, date)
 nyt %>% 
   group_by(date) %>% 
@@ -217,6 +220,19 @@ nyt %>%
   kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
 ```
 
+Missing and `Inf` data situation
+
+```{r}
+sapply(nyt, function(x) sum(is.na(x)))
+sapply(nyt, function(x) sum(is.nan(x)))
+sapply(nyt, function(x) sum(is.infinite(x)))
+
+nyt %>% 
+  filter(is.infinite(log_dif)) %>% 
+  select(date, state, cases_day, cases_daybefore, log_dif) %>% 
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
+```
 
 # Link of measures & cases datasets 
 
@@ -226,19 +242,61 @@ nyt %>%
 measures_first <- measures %>% 
   select(-measure_short) %>% 
   group_by(state) %>% 
-  slice(1)
+  arrange(date) %>% 
+  slice(1) %>% 
+  rename(date_first = date)
 
-nyt_first <- left_join(nyt, measures_first)
-# filter(cases_cumulative >= 30) %>%
+measures_first %>% 
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
+
+nyt_first <- left_join(nyt, measures_first) %>% 
+  mutate(time_to_intervention = date - date_first,
+         post_intervention = ifelse(time_to_intervention <= 3, 0, 1))
 ```
+
+Example of first state
+
+```{r}
+nyt_first %>% 
+  filter(state == "Alabama") %>% 
+  select(date, state, log_dif, 
+         date_first, time_to_intervention, post_intervention) %>% 
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
+```
+
 
 ## Lockdown
 
+Not all states implemented that!
+
 ```{r}
+measures_lockdown <- measures %>% 
+  filter(measure == "restrictions on internal movement") %>% 
+  select(-measure_short) %>% 
+  rename(date_lockdown = date)
 
+measures_lockdown %>% 
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
 
+nyt_lockdown <- left_join(nyt, measures_lockdown) %>% 
+  mutate(date_lockdown_filled = if_else(is.na(date_lockdown), as.Date("2020-03-30"), date_lockdown)) %>% 
+  mutate(time_to_lockdown = date - date_lockdown_filled,
+         post_intervention = ifelse(time_to_lockdown <= 3, 0, 1))
 ```
 
+Example of first state
+
+```{r}
+nyt_lockdown %>% 
+  filter(state == "Connecticut") %>% 
+  select(date, state, log_dif, 
+         date_lockdown_filled, time_to_lockdown, post_intervention) %>% 
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
+```
 
 # Pop density
 
