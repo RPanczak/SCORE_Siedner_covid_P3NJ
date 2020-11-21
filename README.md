@@ -8,6 +8,6 @@ SCORE project code for replication of
 
 *Note the version!* Replication attempt on the first submitted preprint.
 
-[OSF project](...)
+[OSF project](https://osf.io/mshda/)
 
 (CC BY-NC-SA 4.0)
