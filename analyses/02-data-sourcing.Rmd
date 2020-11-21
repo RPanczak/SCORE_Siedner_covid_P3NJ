@@ -30,10 +30,14 @@ options(scipen=999)
 set.seed(12345)
 
 library(pacman) 
-p_load(tidyverse, readxl, rvest, scales, sjmisc, janitor, tabulizer, stringr, kableExtra)
+p_load(tidyverse, readxl, rvest, tabulizer, 
+       janitor, sjmisc, sjPlot, skimr,
+       stringr, scales, kableExtra)
 ```
 
 # Timing of state's measures
+
+Data extracted from the table in supplement.
 
 ```{r}
 # page 4 needs headers
@@ -117,24 +121,38 @@ measures <- bind_rows(measures_4,
     )) %>% 
   filter(state != "Puerto Rico") %>% 
   arrange(state, date)
+```
 
-# str(measures)
-# View(measures)
-sjmisc::frq(measures, measure, sort.frq = "desc")
-sjmisc::frq(measures, state)
+Prepared dataset consists of `r number(nrow(measures))` records of `r number(length(unique(measures$state)))` states with measures implemented between `r min(measures$date)` to `r max(measures$date)`. The dataset is in long format. The data for Puerto Rico were excluded since the preprint states that analyses were conducted for 50 states plus DC.
 
-# (missing <- anti_join(
-#    as_tibble(unique(measures$state)), 
-#    as_tibble(unique(nyt$state))
-# ))
+```{r}
+str(measures)
+```
 
+Frequency of first measure
+
+```{r}
+# frq(measures, measure, sort.frq = "desc")
+# plot_frq(measures, measure, coord.flip = TRUE)
+
+# frq(measures, state)
+# plot_frq(measures, state, coord.flip = TRUE)
+
+measures %>% 
+  filter(date >= as.Date("2020-03-10") & date<= as.Date("2020-03-27")) %>% 
+  group_by(state) %>% 
+  arrange(date) %>% 
+  filter(row_number() == 1) %>% 
+  ungroup() %>% 
+  plot_frq(measure)
+```
+
+```{r}
 write_rds(measures, "data/supplement/measures.Rds")
 write_csv(measures, "data/supplement/measures.csv")
 
 rm(measures_4, measures_5_10, measures_8, measures_11)
 ```
-
-Prepared dataset consists of `r number(nrow(measures))` records of `r number(length(unique(measures$state)))` states with measures implemented between `r min(measures$date)` to `r max(measures$date)`. The dataset is in long format. The data for Puerto Rico were excluded since the preprint states that analyses were conducted fo r50 states plus DC.
 
 # NYT Covid-19 data
 
@@ -191,6 +209,7 @@ nyt <- nyt_raw %>%
 ```
 
 Prepared dataset consists of `r number(nrow(nyt), big.mark = ",")` records of `r number(length(unique(nyt$state)))` states from `r min(nyt$date)` to `r max(nyt$date)` period. 
+
 ```{r}
 write_rds(nyt, "data/nyt/nyt.Rds")
 write_csv(nyt, "data/nyt/nyt.csv")
@@ -235,6 +254,13 @@ nyt %>%
   kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
 ```
 
+```{r eval=FALSE, include=FALSE}
+# (missing <- anti_join(
+#    as_tibble(unique(measures$state)), 
+#    as_tibble(unique(nyt$state))
+# ))
+```
+
 # Link of measures & cases datasets 
 
 ## First measure
@@ -257,7 +283,13 @@ nyt_first <- left_join(nyt, measures_first) %>%
   arrange(state, time_to_intervention) 
 ```
 
-Example of first state
+Prepared dataset consists of `r number(nrow(nyt_first), big.mark = ",")` records of `r number(length(unique(nyt_first$state)))` states from `r min(nyt_first$date)` to `r max(nyt_first$date)` period. 
+
+```{r}
+str(nyt_first)
+```
+
+Example of first state:  
 
 ```{r}
 nyt_first %>% 
@@ -268,6 +300,28 @@ nyt_first %>%
   kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
 ```
 
+Median & IQR size of epidemic when measure was implemented
+
+```{r}
+nyt_first %>% 
+  filter(date == date_first) %>% 
+  summarise(median = median(cases_cumulative),
+            p25 = quantile(cases_cumulative, prob = 0.25),
+            p75 = quantile(cases_cumulative, prob = 0.75))
+```
+
+Mean size of epidemic growth
+
+```{r}
+nyt_first %>% 
+  filter(date == date_first) %>% 
+  summarise(mean = mean(cases_day_perc))
+```
+
+```{r}
+write_rds(nyt_first, "data/nyt_first.Rds")
+write_csv(nyt_first, "data/nyt_first.csv")
+```
 
 ## Lockdown
 
@@ -290,7 +344,13 @@ nyt_lockdown <- left_join(nyt, measures_lockdown) %>%
   arrange(state, time_to_lockdown) 
 ```
 
-Example of one state
+Prepared dataset consists of `r number(nrow(nyt_lockdown), big.mark = ",")` records of `r number(length(unique(nyt_lockdown$state)))` states from `r min(nyt_lockdown$date)` to `r max(nyt_lockdown$date)` period. 
+
+```{r}
+str(nyt_first)
+```
+
+Example of one state:  
 
 ```{r}
 nyt_lockdown %>% 
@@ -301,9 +361,36 @@ nyt_lockdown %>%
   kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
 ```
 
+Median & IQR size of epidemic when measure was implemented
+
+```{r}
+nyt_lockdown %>% 
+  filter(date == as.Date("2020-03-30")) %>% 
+  summarise(median = median(cases_cumulative),
+            p25 = quantile(cases_cumulative, prob = 0.25),
+            p75 = quantile(cases_cumulative, prob = 0.75))
+```
+
+Mean size of epidemic growth
+
+```{r}
+nyt_lockdown %>% 
+  filter(date == as.Date("2020-03-30")) %>% 
+  summarise(mean = mean(cases_day_perc))
+```
+
+```{r}
+write_rds(nyt_lockdown, "data/nyt_lockdown.Rds")
+write_csv(nyt_lockdown, "data/nyt_lockdown.csv")
+```
+
 # Pop density
 
 ## Numerator
+
+Data comes from *State Population Totals and Components of Change: 2010-2019* [website](https://www.census.gov/data/tables/time-series/demo/popest/2010s-state-total.html#par_textimage_1574439295) of the US Census Bureau.
+
+Specifically dataset is extracted from the spreadsheet `Annual Estimates of the Resident Population for the United States, Regions, States, and Puerto Rico: April 1, 2010 to July 1, 2019 (NST-EST2019-01)` fount in the section *Population, Population Change, and Estimated Components of Population Change: April 1, 2010 to July 1, 2019 (NST-EST2019-alldata)*.  
 
 ```{r}
 population <- read_excel("data-raw/census/nst-est2019-01.xlsx", 
@@ -327,6 +414,8 @@ write_csv(population, "data/census/population.csv")
 ```
 
 ## Denominator
+
+Data comes from *State Area Measurements and Internal Point Coordinates* [website](https://www.census.gov/geographies/reference-files/2010/geo/state-area.html) of the US Census Bureau. No download was avaialble so table was scraped using `rvest` package. 
 
 ```{r}
 p_load(rvest)
@@ -362,5 +451,3 @@ area %>%
 write_rds(area, "data/census/area.Rds")
 write_csv(area, "data/census/area.csv")
 ```
-
-

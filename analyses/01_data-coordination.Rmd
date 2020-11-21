@@ -1,0 +1,116 @@
+---
+title: "SCORE: Siedner et al. (2020) replication"
+subtitle: "Data coordination"
+author: "Radoslaw Panczak"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+mainfont: DejaVu Sans
+output: 
+  html_document: 
+    toc: true
+    toc_depth: 4
+    toc_float: true
+    number_sections: true
+    theme: united 
+    highlight: pygments 
+editor_options: 
+  chunk_output_type: console
+---
+
+<!-- ------------------------------------------------------------ --> 
+<!-- ------------------------------------------------------------ --> 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = TRUE, warning = TRUE, 
+                      fig.width=8, fig.height=6, dpi=300, 
+                      out.width="800px", out.height="600px")
+
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+
+options(scipen=999)
+
+set.seed(12345)
+
+library(pacman) 
+
+p_load(osfr, readr, dplyr)
+```
+
+# Purpose
+
+Simple script to automate data download and upload to osf.
+
+# Authentication
+
+```{r osf-auth, eval=FALSE, include=FALSE}
+osf_pat <- readr::read_file("osf_pat.txt")
+osf_auth(osf_pat)
+
+project <- osf_retrieve_node("mshda")
+
+project
+```
+
+# Data upload to osf
+
+## Create directories
+
+Do only once.  
+
+```{r osf-dirs, eval=FALSE, include=FALSE}
+# TODO: check what happens if dir already exist?
+# not needed any longer - dirs will be created below with osf_upload
+project %>%
+  osf_ls_nodes() %>%
+  filter(name == "Data") %>% 
+  osf_mkdir(path = "data-raw", verbose = TRUE)
+
+project %>%
+  osf_ls_nodes() %>%
+  filter(name == "Data") %>% 
+  osf_mkdir(path = "data", verbose = TRUE)
+```
+
+## Upload data
+
+```{r osf-up, eval=FALSE, include=FALSE}
+upload_location <- project %>%
+  osf_ls_nodes("Data") 
+
+osf_upload(upload_location, 
+           path = "data-raw", 
+           recurse = TRUE, conflicts = "overwrite",
+           verbose = TRUE)
+
+osf_upload(upload_location, 
+           path = "data", 
+           recurse = TRUE, conflicts = "overwrite",
+           verbose = TRUE)
+
+osf_upload(upload_location, 
+           path = c("analyses/02-data-sourcing.Rmd", 
+                    "analyses/02-data-sourcing.html"), 
+           conflicts = "overwrite",
+           verbose = TRUE)
+```
+
+# Data download
+
+```{r osf-down, eval=FALSE, include=FALSE}
+# osf_ls_nodes(project)
+project %>% 
+  osf_ls_nodes() %>% 
+  filter(name == "Data") %>% 
+  osf_ls_files() %>% 
+  filter(name == "data-raw") %>% 
+  osf_ls_files()
+
+project %>%
+  osf_ls_nodes() %>%
+  filter(name == "Data") %>%
+  osf_ls_files() %>%
+  filter(name == "data-raw") %>%
+  osf_ls_files() %>% 
+  osf_download(path = "...")
+```
+
+
