@@ -120,7 +120,8 @@ measures <- bind_rows(measures_4,
       measure_short == "e" ~ "closure of state borders"
     )) %>% 
   filter(state != "Puerto Rico") %>% 
-  arrange(state, date)
+  arrange(state, date) %>% 
+  as_tibble()
 ```
 
 Prepared dataset consists of `r number(nrow(measures))` records of `r number(length(unique(measures$state)))` states with measures implemented between `r min(measures$date)` to `r max(measures$date)`. The dataset is in long format. The data for Puerto Rico were excluded since the preprint states that analyses were conducted for 50 states plus DC.
@@ -163,7 +164,8 @@ The New York Times' [Coronavirus (Covid-19) Data in the United States](https://g
 ```{r}
 urlfile="https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv"
 
-nyt_raw <- read_csv(url(urlfile))
+nyt_raw <- read_csv(url(urlfile)) %>% 
+  as_tibble()
 
 # sjmisc::frq(nyt_raw, state)
 
@@ -205,7 +207,8 @@ nyt <- nyt_raw %>%
          cases_daybefore_ln = log(cases_daybefore),
          log_dif = cases_day_ln - cases_daybefore_ln) %>%
   filter(cases_cumulative >= 30) %>% 
-  arrange(state, date)
+  arrange(state, date) %>% 
+  as_tibble()
 ```
 
 Prepared dataset consists of `r number(nrow(nyt), big.mark = ",")` records of `r number(length(unique(nyt$state)))` states from `r min(nyt$date)` to `r max(nyt$date)` period. 
@@ -402,7 +405,8 @@ population <- read_excel("data-raw/census/nst-est2019-01.xlsx",
   select(state, pop_2019) %>% 
   filter(! state %in% c("United States", "Northeast", "Midwest", "South", "West"),
          !is.na(pop_2019)) %>% 
-  mutate(state = str_replace(state, fixed("."), ""))
+  mutate(state = str_replace(state, fixed("."), "")) %>% 
+  as_tibble()
 
 population %>% 
   slice(1:5) %>% 
@@ -441,7 +445,8 @@ area <- webpage %>%
   rename(total_area_km = total_area,
          total_area_mi = total_area_2,
          land_area_km = land_area1,
-         land_area_mi = land_area1_2)
+         land_area_mi = land_area1_2) %>% 
+  as_tibble()
 
 area %>% 
   slice(1:5) %>% 
