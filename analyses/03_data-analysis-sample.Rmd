@@ -1,0 +1,207 @@
+---
+title: "SCORE: Siedner et al. (2020) replication"
+subtitle: "Data analysis - sample"
+author: "Radoslaw Panczak"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+mainfont: DejaVu Sans
+output: 
+  html_document: 
+    toc: true
+    toc_depth: 4
+    toc_float: true
+    number_sections: true
+    theme: united 
+    highlight: pygments 
+editor_options: 
+  chunk_output_type: console
+---
+
+<!-- ------------------------------------------------------------ --> 
+<!-- ------------------------------------------------------------ --> 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, 
+                      fig.width=8, fig.height=6, dpi=300, 
+                      out.width="800px", out.height="600px")
+
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+
+options(scipen=999)
+set.seed(12345)
+
+library(pacman) 
+p_load(tidyverse, readxl, 
+       sjmisc, sjPlot, scales, kableExtra, 
+       lme4, ggeffects)
+```
+
+# Data sources 
+
+## Full sample 
+
+```{r cars}
+nyt_first <- readRDS("C:/external/SCORE_Siedner_covid_P3NJ/data/nyt_first.Rds")
+nyt_lockdown <- readRDS("C:/external/SCORE_Siedner_covid_P3NJ/data/nyt_lockdown.Rds")
+```
+
+## 5% sample of data
+
+```{r}
+sample <- nyt_first %>% 
+  select(state) %>% 
+  distinct() %>% 
+  sample_frac(size = 0.05)   
+
+write_rds(sample, "data/sample/sample.Rds")
+write_csv(sample, "data/sample/sample.csv")
+```
+
+Selected states:
+
+```{r}
+sample %>% 
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
+```
+
+## Excluding `Inf`values of `log_diff` variable
+
+```{r}
+nyt_first_sample <- sample %>% 
+  inner_join(nyt_first)
+
+nyt_lockdown_sample <- sample %>% 
+  inner_join(nyt_lockdown)
+
+nyt_first_sample <- nyt_first_sample %>% 
+  filter(is.finite(log_dif))
+
+nyt_lockdown_sample <- nyt_lockdown_sample %>% 
+  filter(is.finite(log_dif))
+```
+
+## Data for preregistration analyses 
+
+```{r}
+write_rds(nyt_first_sample, "data/sample/nyt_first_sample.Rds")
+write_csv(nyt_first_sample, "data/sample/nyt_first_sample.csv")
+
+write_rds(nyt_lockdown_sample, "data/sample/nyt_lockdown_sample.Rds")
+write_csv(nyt_lockdown_sample, "data/sample/nyt_lockdown_sample.csv")
+```
+
+# EDA
+
+## First measure 
+
+```{r}
+ggplot(nyt_first_sample, aes(time_to_intervention, cases_day)) +
+  geom_line() + 
+  facet_wrap(~state, scales = "free_y") +
+  geom_vline(xintercept = 0, colour = "red") +
+  geom_vline(xintercept = 4, colour = "green")
+
+ggplot(nyt_first_sample, aes(time_to_intervention, cases_day_perc)) +
+  geom_line() + 
+  facet_wrap(~state, scales = "free_y") +
+  geom_vline(xintercept = 0, colour = "red") +
+  geom_vline(xintercept = 4, colour = "green")
+
+ggplot(nyt_first_sample, aes(time_to_intervention, cases_day_perc)) +
+  geom_point(aes(colour = state)) + 
+  geom_vline(xintercept = 0, colour = "red") +
+  geom_vline(xintercept = 4, colour = "green")
+
+ggplot(nyt_first_sample, aes(time_to_intervention, log_dif)) +
+  geom_line() + 
+  facet_wrap(~state, scales = "free_y") +
+  geom_vline(xintercept = 0, colour = "red") +
+  geom_vline(xintercept = 4, colour = "green")
+```
+
+## Lockdown 
+
+```{r}
+ggplot(nyt_lockdown_sample, aes(time_to_lockdown, cases_day)) +
+  geom_line() + 
+  facet_wrap(~state, scales = "free_y") +
+  geom_vline(xintercept = 0, colour = "red") +
+  geom_vline(xintercept = 4, colour = "green")
+
+ggplot(nyt_lockdown_sample, aes(time_to_lockdown, cases_day_perc)) +
+  geom_line() + 
+  facet_wrap(~state, scales = "free_y") +
+  geom_vline(xintercept = 0, colour = "red") +
+  geom_vline(xintercept = 4, colour = "green")
+
+ggplot(nyt_lockdown_sample, aes(time_to_lockdown, cases_day_perc)) +
+  geom_point(aes(colour = state)) + 
+  geom_vline(xintercept = 0, colour = "red") +
+  geom_vline(xintercept = 4, colour = "green")
+
+ggplot(nyt_lockdown_sample, aes(time_to_lockdown, log_dif)) +
+  geom_line() + 
+  facet_wrap(~state, scales = "free_y") +
+  geom_vline(xintercept = 0, colour = "red") +
+  geom_vline(xintercept = 4, colour = "green")
+```
+
+# Analyses 
+
+## First measure 
+
+```{r}
+m11 <- lmer(log_dif ~ time_to_intervention + post_intervention +
+             time_to_intervention : post_intervention +
+             (1 | state),
+           data = nyt_first_sample)
+
+tab_model(m11, digits = 3)
+plot_model(m11)
+
+plot_model(m11, type = "pred", terms = "time_to_intervention") +
+  geom_vline(xintercept = 0, colour = "red") +
+  geom_vline(xintercept = 4, colour = "green")
+
+ggpredict(m11, "time_to_intervention", type = "fixed")
+ggpredict(m11, "time_to_intervention", type = "random")
+```
+
+```{r}
+# back up plan if lmer fails?
+# p_load(nlme)
+# m12 <- lme(log_dif ~ time_to_intervention + post_intervention +
+#              time_to_intervention : post_intervention,
+#            random = ~ 1 | state, data = nyt_first_sample)
+# 
+# intervals(m12, which = "fixed")
+```
+
+## Lockdown 
+
+```{r}
+m21 <- lmer(log_dif ~ time_to_lockdown + post_intervention + 
+             time_to_lockdown : post_intervention + 
+             (1 | state), 
+           data = nyt_lockdown_sample)
+
+tab_model(m21, digits = 3)
+plot_model(m21)
+
+plot_model(m21, type = "pred", terms = "time_to_lockdown") +
+  geom_vline(xintercept = 0, colour = "red") +
+  geom_vline(xintercept = 4, colour = "green")
+
+ggpredict(m21, "time_to_lockdown", type = "fixed")
+ggpredict(m21, "time_to_lockdown", type = "random")
+```
+
+```{r}
+# back up plan if lmer fails?
+# m22 <- lme(log_dif ~ time_to_lockdown + post_intervention +
+#              time_to_lockdown : post_intervention,
+#            random = ~ 1 | state, data = nyt_lockdown_sample)
+# 
+# intervals(m22, which = "fixed")
+```
+
