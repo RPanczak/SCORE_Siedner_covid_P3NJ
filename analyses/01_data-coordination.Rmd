@@ -87,8 +87,14 @@ osf_upload(upload_location,
            verbose = TRUE)
 
 osf_upload(upload_location, 
-           path = c("analyses/02-data-sourcing.Rmd", 
-                    "analyses/02-data-sourcing.html"), 
+           path = c("analyses/02_data-sourcing.Rmd", 
+                    "analyses/02_data-sourcing.html"), 
+           conflicts = "overwrite",
+           verbose = TRUE)
+
+osf_upload(upload_location, 
+           path = c("analyses/03_data-analysis-sample.Rmd", 
+                    "analyses/03_data-analysis-sample.html"), 
            conflicts = "overwrite",
            verbose = TRUE)
 ```
