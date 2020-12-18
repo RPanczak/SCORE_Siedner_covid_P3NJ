@@ -87,10 +87,18 @@ osf_upload(upload_location,
            verbose = TRUE)
 
 osf_upload(upload_location, 
+           path = c("analyses/01_data-coordination.Rmd"), 
+           conflicts = "overwrite",
+           verbose = TRUE)
+
+osf_upload(upload_location, 
            path = c("analyses/02_data-sourcing.Rmd", 
                     "analyses/02_data-sourcing.html"), 
            conflicts = "overwrite",
            verbose = TRUE)
+
+upload_location <- project %>%
+  osf_ls_nodes("Analysis") 
 
 osf_upload(upload_location, 
            path = c("analyses/03_data-analysis-sample.Rmd", 

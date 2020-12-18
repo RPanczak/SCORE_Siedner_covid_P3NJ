@@ -188,25 +188,22 @@ nyt_raw %>%
   kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
 ```
 
-Next, data is limited to match the time frame of the analysis ie. until `2020-03-30` and daily number of cases are derived from cumulative counts. Next cases from previous day are added to each observation and logarithms and their difference are calculated. Finally only days when cumulative number of cases reached 30 are kept in the dataset.
+Next, data is limited to match the time frame of the analysis ie. until `2020-03-30`. Next, logarithms and their difference are calculated. Finally only days when cumulative number of cases reached 30 are kept in the dataset.
 
 ```{r}
 nyt <- nyt_raw %>%
   filter(!fips %in% c(66, 69, 72, 78)) %>% 
   select(-fips, -deaths) %>%
-  rename(cases_cumulative = cases) %>%
   filter(date <= as.Date("2020-03-30")) %>%
   arrange(state, date) %>%
   group_by(state) %>%
-  mutate(cases_day = cases_cumulative - lag(cases_cumulative)) %>%
-  mutate(cases_day = ifelse(is.na(cases_day), cases_cumulative, cases_day)) %>%
-  mutate(cases_day_perc = ((cases_day - lag(cases_day))/ lag(cases_day)) *100,
-         cases_daybefore = lag(cases_day)) %>%
+  mutate(cases_perc = ((cases - lag(cases))/ lag(cases)) *100,
+         cases_daybefore = lag(cases)) %>%
   ungroup() %>%
-  mutate(cases_day_ln = log(cases_day),
+  mutate(cases_ln = log(cases),
          cases_daybefore_ln = log(cases_daybefore),
-         log_dif = cases_day_ln - cases_daybefore_ln) %>%
-  filter(cases_cumulative >= 30) %>% 
+         log_dif = cases_ln - cases_daybefore_ln) %>%
+  filter(cases >= 30) %>% 
   arrange(state, date) %>% 
   as_tibble()
 ```
@@ -249,12 +246,6 @@ Missing and `Inf` data situation
 sapply(nyt, function(x) sum(is.na(x)))
 sapply(nyt, function(x) sum(is.nan(x)))
 sapply(nyt, function(x) sum(is.infinite(x)))
-
-nyt %>% 
-  filter(is.infinite(log_dif)) %>% 
-  select(date, state, cases_day, cases_daybefore, log_dif) %>% 
-  kbl() %>%
-  kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
 ```
 
 ```{r eval=FALSE, include=FALSE}
@@ -274,7 +265,8 @@ measures_first <- measures %>%
   group_by(state) %>% 
   arrange(date) %>% 
   slice(1) %>% 
-  rename(date_first = date)
+  rename(date_first = date) %>% 
+  ungroup()
 
 measures_first %>% 
   kbl() %>%
@@ -308,9 +300,9 @@ Median & IQR size of epidemic when measure was implemented
 ```{r}
 nyt_first %>% 
   filter(date == date_first) %>% 
-  summarise(median = median(cases_cumulative),
-            p25 = quantile(cases_cumulative, prob = 0.25),
-            p75 = quantile(cases_cumulative, prob = 0.75))
+  summarise(median = median(cases),
+            p25 = quantile(cases, prob = 0.25),
+            p75 = quantile(cases, prob = 0.75))
 ```
 
 Mean size of epidemic growth
@@ -318,7 +310,7 @@ Mean size of epidemic growth
 ```{r}
 nyt_first %>% 
   filter(date == date_first) %>% 
-  summarise(mean = mean(cases_day_perc))
+  summarise(mean = mean(cases_perc))
 ```
 
 ```{r}
@@ -368,18 +360,18 @@ Median & IQR size of epidemic when measure was implemented
 
 ```{r}
 nyt_lockdown %>% 
-  filter(date == as.Date("2020-03-30")) %>% 
-  summarise(median = median(cases_cumulative),
-            p25 = quantile(cases_cumulative, prob = 0.25),
-            p75 = quantile(cases_cumulative, prob = 0.75))
+  filter(time_to_lockdown  == 0) %>% 
+  summarise(median = median(cases),
+            p25 = quantile(cases, prob = 0.25),
+            p75 = quantile(cases, prob = 0.75))
 ```
 
 Mean size of epidemic growth
 
 ```{r}
 nyt_lockdown %>% 
-  filter(date == as.Date("2020-03-30")) %>% 
-  summarise(mean = mean(cases_day_perc))
+  filter(time_to_lockdown  == 0) %>% 
+  summarise(mean = mean(cases_perc))
 ```
 
 ```{r}

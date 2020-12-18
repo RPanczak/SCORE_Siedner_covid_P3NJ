@@ -64,7 +64,7 @@ sample %>%
   kable_styling(bootstrap_options = c("striped", "hover", full_width = FALSE))
 ```
 
-## Excluding `Inf`values of `log_diff` variable
+Data extract: 
 
 ```{r}
 nyt_first_sample <- sample %>% 
@@ -72,12 +72,6 @@ nyt_first_sample <- sample %>%
 
 nyt_lockdown_sample <- sample %>% 
   inner_join(nyt_lockdown)
-
-nyt_first_sample <- nyt_first_sample %>% 
-  filter(is.finite(log_dif))
-
-nyt_lockdown_sample <- nyt_lockdown_sample %>% 
-  filter(is.finite(log_dif))
 ```
 
 ## Data for preregistration analyses 
@@ -95,19 +89,19 @@ write_csv(nyt_lockdown_sample, "data/sample/nyt_lockdown_sample.csv")
 ## First measure 
 
 ```{r}
-ggplot(nyt_first_sample, aes(time_to_intervention, cases_day)) +
+ggplot(nyt_first_sample, aes(time_to_intervention, cases)) +
   geom_line() + 
   facet_wrap(~state, scales = "free_y") +
   geom_vline(xintercept = 0, colour = "red") +
   geom_vline(xintercept = 4, colour = "green")
 
-ggplot(nyt_first_sample, aes(time_to_intervention, cases_day_perc)) +
+ggplot(nyt_first_sample, aes(time_to_intervention, cases_perc)) +
   geom_line() + 
   facet_wrap(~state, scales = "free_y") +
   geom_vline(xintercept = 0, colour = "red") +
   geom_vline(xintercept = 4, colour = "green")
 
-ggplot(nyt_first_sample, aes(time_to_intervention, cases_day_perc)) +
+ggplot(nyt_first_sample, aes(time_to_intervention, cases_perc)) +
   geom_point(aes(colour = state)) + 
   geom_vline(xintercept = 0, colour = "red") +
   geom_vline(xintercept = 4, colour = "green")
@@ -122,19 +116,19 @@ ggplot(nyt_first_sample, aes(time_to_intervention, log_dif)) +
 ## Lockdown 
 
 ```{r}
-ggplot(nyt_lockdown_sample, aes(time_to_lockdown, cases_day)) +
+ggplot(nyt_lockdown_sample, aes(time_to_lockdown, cases)) +
   geom_line() + 
   facet_wrap(~state, scales = "free_y") +
   geom_vline(xintercept = 0, colour = "red") +
   geom_vline(xintercept = 4, colour = "green")
 
-ggplot(nyt_lockdown_sample, aes(time_to_lockdown, cases_day_perc)) +
+ggplot(nyt_lockdown_sample, aes(time_to_lockdown, cases_perc)) +
   geom_line() + 
   facet_wrap(~state, scales = "free_y") +
   geom_vline(xintercept = 0, colour = "red") +
   geom_vline(xintercept = 4, colour = "green")
 
-ggplot(nyt_lockdown_sample, aes(time_to_lockdown, cases_day_perc)) +
+ggplot(nyt_lockdown_sample, aes(time_to_lockdown, cases_perc)) +
   geom_point(aes(colour = state)) + 
   geom_vline(xintercept = 0, colour = "red") +
   geom_vline(xintercept = 4, colour = "green")
