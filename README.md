@@ -10,4 +10,6 @@ SCORE project code for replication of
 
 [OSF project](https://osf.io/mshda/)
 
+Archived on [![DOI](https://zenodo.org/badge/309806396.svg)](https://zenodo.org/badge/latestdoi/309806396)
+
 (CC BY-NC-SA 4.0)
