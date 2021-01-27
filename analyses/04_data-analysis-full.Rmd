@@ -1,0 +1,89 @@
+---
+title: "Reproduction of a Research Claim from Siedner *et al.* (2020), from medRxiv"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+mainfont: DejaVu Sans
+output:
+  pdf_document:
+editor_options:
+  chunk_output_type: console
+---
+
+<!-- ------------------------------------------------------------ --> 
+<!-- ------------------------------------------------------------ --> 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, 
+                      fig.width=8, fig.height=6, dpi=300, 
+                      out.width="800px", out.height="600px")
+
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+
+options(scipen=999)
+set.seed(12345)
+
+library(stargazer)
+library(lme4)
+```
+
+# Project details
+
+Reproduction Team: *Radoslaw Panczak*
+
+Research Scientist: *Nick Fox*
+
+Reviewer #1: *Gustav Nilsonne*
+
+Project ID: *Siedner_covid_P3NJ - Panczak - Computational Reproduction - 1y2*  
+
+OSF project: [https://osf.io/mshda](https://osf.io/mshda)  
+
+Preregistration: [https://osf.io/8sqjh](https://osf.io/8sqjh)  
+
+## Claim summary 
+
+The claim selected for reproduction from Siedner *et al.* (2020) is that implementation of social distancing measures is associated with a reduction in the mean daily growth rate of COVID-19 cases. This reflects the following statement from the paper’s abstract: “The mean daily COVID-19 growth rate **decreased** beginning four days after implementation of the first statewide social distancing measures, by an additional **0.8% per day; 95% CI, -1.4% to -0.2%; P=0.002**”.
+
+## Replication Criteria
+
+Criteria for a successful replication attempt for this project is a statistically significant effect (alpha = .05, two tailed) in the same pattern as the original study on the focal hypothesis test (H*). For this study, these criteria are met by obtaining a statistically significant (p-value specified in the preprint is 0.002 for first measure implemented), negative regression coefficient on the interaction between time and post implementation period from the unadjusted model run on the full sample of states (reported coefficient: -0.008; -0.014, -0.002 95% CI).
+
+## Replication Result
+
+We found exactly the same effect as in the original analysis. The effect was significant however there was a slight discrepancy in the *p* value which increased from reported `0.003` to `0.009`. Such a discrepancy might have occurred due to the different software used.  
+
+Table below reports full details of the regression model and number of observations and levels used for the analysis.  
+
+The replication was **successful** according to SCORE criteria. 
+
+\newpage
+
+```{r echo=FALSE, results="asis"}
+nyt_first <- readRDS("C:/external/SCORE_Siedner_covid_P3NJ/data/nyt_first.Rds")
+
+m11 <- lmer(log_dif ~ time_to_intervention + post_intervention +
+             time_to_intervention : post_intervention +
+             (1 | state),
+           data = nyt_first)
+
+stargazer(m11, header = FALSE, ci = TRUE, report  ="vcsp", 
+          title = "Regression model of reproduction",
+          notes = "", notes.append = FALSE)
+```
+
+# Deviations from preregistration
+
+There were no deviations from preregistration during the analysis.
+
+# Description of materials provided.
+
+The following materials are publicly available on the [OSF project site](https://osf.io/mshda) and [GitHub repository](https://github.com/RPanczak/SCORE_Siedner_covid_P3NJ):
+
+- The raw datafiles saved as pdf file `2020.04.03.20052373-1.pdf` and Rdata file `nyt_raw.Rds`
+- The data preparation file saved as literate programming markdown for R: `02_data-sourcing.Rmd`
+
+- The analytic datafile saved as Rdata files: `nyt_first.Rds`
+- The full data analysis script, provided as a R markdown document: `04_data-analysis-full.Rmd` with the pdf output file being this report.
+
+# Citation
+
+Mark J Siedner, Guy Harling, Zahra Reynolds, Rebecca F Gilbert, Atheendar Venkataramani, Alexander C Tsai (2020) "Social distancing to slow the U.S. COVID-19 epidemic: an interrupted time-series analysis". *medRxiv*; doi: [2020.04.03.20052373](https://doi.org/10.1101/2020.04.03.20052373)

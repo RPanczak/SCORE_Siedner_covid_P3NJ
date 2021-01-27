@@ -105,6 +105,19 @@ osf_upload(upload_location,
                     "analyses/03_data-analysis-sample.html"), 
            conflicts = "overwrite",
            verbose = TRUE)
+
+osf_upload(upload_location, 
+           path = "analyses/04_data-analysis-full.Rmd", 
+           conflicts = "overwrite",
+           verbose = TRUE)
+
+file.rename("analyses/04_data-analysis-full.pdf", 
+            "analyses/SCORE Report - Siedner_covid_P3NJ - Panczak_1y2.pdf")
+
+osf_upload(project, 
+           path = "analyses/SCORE Report - Siedner_covid_P3NJ - Panczak_1y2.pdf", 
+           conflicts = "overwrite",
+           verbose = TRUE)
 ```
 
 # Data download
